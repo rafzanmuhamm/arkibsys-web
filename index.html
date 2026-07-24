@@ -11,7 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* CSS Variables - Dark Blue Glassmorphism Theme */
         :root {
             --bg-page: #070d1a;
             --bg-header: rgba(10, 16, 32, 0.8);
@@ -44,7 +43,6 @@
                 radial-gradient(circle at 85% 30%, rgba(34, 197, 94, 0.03), transparent 25%);
         }
 
-        /* Utility Classes */
         .hidden { display: none !important; }
         .glass-panel {
             background: var(--bg-card);
@@ -54,7 +52,6 @@
             border-radius: 16px;
         }
         
-        /* Buttons & Inputs */
         button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; transition: var(--transition); }
         .btn-primary {
             background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-hover));
@@ -72,7 +69,6 @@
         input:focus, select:focus { border-color: var(--accent-gold); box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1); }
         label { display: block; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
 
-        /* Login Screen */
         #login-view {
             display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 24px;
         }
@@ -81,10 +77,8 @@
         .login-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
         .login-header span { color: var(--accent-gold); }
 
-        /* App Layout */
         #app-view { display: flex; min-height: 100vh; }
         
-        /* Sidebar */
         .sidebar {
             width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border-glass);
             display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50;
@@ -100,7 +94,6 @@
         .nav-item:hover, .nav-item.active { background: rgba(201, 168, 76, 0.1); color: var(--accent-gold); }
         .sidebar-footer { padding: 24px 16px; border-top: 1px solid var(--border-glass); }
         
-        /* Main Content */
         .main-content { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh; transition: var(--transition); }
         .topbar {
             height: 70px; background: var(--bg-header); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-glass);
@@ -108,7 +101,6 @@
         }
         .content-area { padding: 32px; flex: 1; }
 
-        /* Dashboard Cards */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
         .stat-card { padding: 24px; }
         .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
@@ -116,7 +108,6 @@
         .text-green { color: var(--status-green) !important; }
         .text-red { color: var(--status-red) !important; }
 
-        /* Data Tables */
         .table-container { overflow-x: auto; margin-top: 16px; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th { padding: 16px; text-align: left; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-glass); }
@@ -129,7 +120,6 @@
         .status-ada { background: rgba(34, 197, 94, 0.1); color: var(--status-green); border: 1px solid rgba(34, 197, 94, 0.2); }
         .status-diambil { background: rgba(224, 82, 82, 0.1); color: var(--status-red); border: 1px solid rgba(224, 82, 82, 0.2); }
 
-        /* Modals & Toasts */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
             display: flex; align-items: center; justify-content: center; z-index: 100; padding: 24px;
@@ -141,15 +131,12 @@
         .toast.success { background: rgba(34, 197, 94, 0.9); color: #fff; }
         .toast.error { background: rgba(224, 82, 82, 0.9); color: #fff; }
 
-        /* Loading Spinner */
         .spinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent-gold); border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
         
-        /* Animations */
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
         
-        /* Responsive */
         .menu-toggle { display: none; }
         @media (max-width: 1024px) {
             .sidebar { transform: translateX(-100%); }
@@ -158,7 +145,6 @@
             .menu-toggle { display: block; }
         }
         
-        /* Grid Layouts for Forms */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
     </style>
@@ -185,36 +171,26 @@
                     Log Masuk
                 </button>
             </form>
-            <div style="margin-top: 20px; padding: 12px; background: rgba(201, 168, 76, 0.08); border: 1px solid rgba(201, 168, 76, 0.2); border-radius: 8px; font-size: 12px; color: var(--text-muted); text-align: center;">
-                <strong style="color: var(--accent-gold);">Demo Login Admin:</strong><br>
-                Username: <code>admin</code> | Password: <code>admin</code>
-            </div>
         </div>
     </div>
 
     <!-- APP VIEW -->
     <div id="app-view" class="hidden">
-        
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 ARKIB<span>SYS</span>
             </div>
             <nav class="sidebar-nav">
                 <button class="nav-item active" onclick="window.app.navigate('dashboard')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4V4zm9 0h7v4h-7V4zM4 13h7v7H4v-7zm9 3h7v4h-7v-4z"/></svg>
                     Dashboard
                 </button>
                 <button class="nav-item admin-only hidden" onclick="window.app.navigate('admin-keys')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/></svg>
                     Manage Keys
                 </button>
                 <button class="nav-item admin-only hidden" onclick="window.app.navigate('admin-users')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
                     Manage Visitors
                 </button>
                 <button class="nav-item admin-only hidden" onclick="window.app.navigate('admin-history')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2"/></svg>
                     History & Reports
                 </button>
             </nav>
@@ -227,12 +203,9 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <header class="topbar">
-                <button class="menu-toggle btn-icon" onclick="document.getElementById('sidebar').classList.toggle('open')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-                </button>
+                <button class="menu-toggle btn-icon" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
                 <div style="display: flex; gap: 16px; align-items: center; margin-left: auto;">
                     <div id="esp-status" style="display: flex; align-items: center; gap: 8px; font-size: 12px; background: rgba(34,197,94,0.1); padding: 6px 12px; border-radius: 99px; border: 1px solid rgba(34,197,94,0.3); color: var(--status-green);">
                         <span class="spinner" style="width:12px;height:12px;border-width:2px;border-top-color:var(--status-green);"></span> Real-time Sync
@@ -241,26 +214,14 @@
             </header>
 
             <div class="content-area">
-                
-                <!-- PAGE: Dashboard (For All) -->
+                <!-- PAGE: Dashboard -->
                 <div id="page-dashboard" class="page-view">
                     <h2 style="font-size: 24px; margin-bottom: 24px;">Ringkasan Sistem</h2>
-                    
                     <div class="stats-grid">
-                        <div class="glass-panel stat-card">
-                            <h3>Jumlah Kunci</h3>
-                            <div class="value" id="stat-total-keys">0</div>
-                        </div>
-                        <div class="glass-panel stat-card">
-                            <h3>Tersedia (ADA)</h3>
-                            <div class="value text-green" id="stat-avail-keys">0</div>
-                        </div>
-                        <div class="glass-panel stat-card">
-                            <h3>Sedang Dipinjam</h3>
-                            <div class="value text-red" id="stat-borrow-keys">0</div>
-                        </div>
+                        <div class="glass-panel stat-card"><h3>Jumlah Kunci</h3><div class="value" id="stat-total-keys">0</div></div>
+                        <div class="glass-panel stat-card"><h3>Tersedia (ADA)</h3><div class="value text-green" id="stat-avail-keys">0</div></div>
+                        <div class="glass-panel stat-card"><h3>Sedang Dipinjam</h3><div class="value text-red" id="stat-borrow-keys">0</div></div>
                     </div>
-
                     <div class="glass-panel" style="padding: 24px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">
                             <h3 style="font-size: 16px; font-weight: 600;">Status Kunci Semasa</h3>
@@ -269,17 +230,9 @@
                         <div class="table-container">
                             <table>
                                 <thead>
-                                    <tr>
-                                        <th>Nama Kunci</th>
-                                        <th>Lokasi Rak</th>
-                                        <th>Status</th>
-                                        <th>Peminjam Terakhir</th>
-                                        <th>Masa Pinjaman</th>
-                                    </tr>
+                                    <tr><th>Nama Kunci</th><th>Lokasi Rak</th><th>Status</th><th>Peminjam Terakhir</th><th>Masa Pinjaman</th></tr>
                                 </thead>
-                                <tbody id="tbody-dashboard-keys">
-                                    <!-- Populated by JS -->
-                                </tbody>
+                                <tbody id="tbody-dashboard-keys"></tbody>
                             </table>
                         </div>
                     </div>
@@ -287,22 +240,14 @@
 
                 <!-- PAGE: Admin - Manage Keys -->
                 <div id="page-admin-keys" class="page-view hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                         <h2 style="font-size: 24px;">Pengurusan Kunci</h2>
                         <button class="btn-primary" onclick="window.app.openModal('modal-key')">+ Daftar Kunci Baru</button>
                     </div>
                     <div class="glass-panel" style="padding: 24px;">
                         <div class="table-container">
                             <table>
-                                <thead>
-                                    <tr>
-                                        <th>Nama Kunci</th>
-                                        <th>Lokasi Rak</th>
-                                        <th>UID Kad (NFC)</th>
-                                        <th>Status</th>
-                                        <th style="text-align: right;">Tindakan</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th>Nama Kunci</th><th>Lokasi Rak</th><th>UID Kad (NFC)</th><th>Status</th><th style="text-align: right;">Tindakan</th></tr></thead>
                                 <tbody id="tbody-admin-keys"></tbody>
                             </table>
                         </div>
@@ -311,22 +256,14 @@
 
                 <!-- PAGE: Admin - Manage Users -->
                 <div id="page-admin-users" class="page-view hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                         <h2 style="font-size: 24px;">Pengurusan Pelawat</h2>
                         <button class="btn-primary" onclick="window.app.openModal('modal-user')">+ Daftar Pelawat Baru</button>
                     </div>
                     <div class="glass-panel" style="padding: 24px;">
                         <div class="table-container">
                             <table>
-                                <thead>
-                                    <tr>
-                                        <th>Nama Penuh</th>
-                                        <th>Username</th>
-                                        <th>UID Kad (NFC)</th>
-                                        <th>Peranan</th>
-                                        <th style="text-align: right;">Tindakan</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th>Nama Penuh</th><th>Username</th><th>UID Kad (NFC)</th><th>Peranan</th><th style="text-align: right;">Tindakan</th></tr></thead>
                                 <tbody id="tbody-admin-users"></tbody>
                             </table>
                         </div>
@@ -335,47 +272,24 @@
 
                 <!-- PAGE: Admin - History -->
                 <div id="page-admin-history" class="page-view hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                         <h2 style="font-size: 24px;">Rekod Transaksi</h2>
-                        <div style="display: flex; gap: 12px;">
-                            <select id="filter-month" style="width: 150px;" onchange="window.app.renderHistory()">
-                                <option value="all">Semua Bulan</option>
-                                <option value="0">Bulan Ini</option>
-                                <option value="1">1 Bulan Lepas</option>
-                            </select>
-                            <button class="btn-primary" onclick="window.app.exportExcel()">Export Excel</button>
-                        </div>
+                        <button class="btn-primary" onclick="window.app.exportExcel()">Export Excel</button>
                     </div>
                     <div class="glass-panel" style="padding: 24px;">
                         <div class="table-container">
                             <table>
-                                <thead>
-                                    <tr>
-                                        <th>Tarikh & Masa</th>
-                                        <th>Pelawat</th>
-                                        <th>Kunci (Rak)</th>
-                                        <th>Tindakan</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th>Tarikh & Masa</th><th>Pelawat</th><th>Kunci (Rak)</th><th>Tindakan</th></tr></thead>
                                 <tbody id="tbody-admin-history"></tbody>
                             </table>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
-                            <span style="font-size: 12px; color: var(--text-muted);" id="pagination-info">Menunjukkan muka surat 1</span>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn-icon" onclick="window.app.changePage(-1)">&#8592;</button>
-                                <button class="btn-icon" onclick="window.app.changePage(1)">&#8594;</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
 
     <!-- MODALS -->
-    <!-- Add/Edit Key Modal -->
     <div id="modal-key" class="modal-overlay hidden">
         <div class="glass-panel modal-content">
             <h3 style="font-size: 18px; margin-bottom: 20px;" id="modal-key-title">Daftar Kunci Baru</h3>
@@ -385,424 +299,200 @@
                     <div><label>Nama Kunci</label><input type="text" id="key-name" required></div>
                     <div><label>Lokasi Rak</label><input type="text" id="key-location" required></div>
                 </div>
-                <div style="margin-bottom: 24px;">
-                    <label>UID NFC (Hex 8-digit)</label>
-                    <input type="text" id="key-uid" required placeholder="Contoh: 04A2B3C1" style="font-family: monospace;">
-                </div>
+                <div style="margin-bottom: 24px;"><label>UID NFC</label><input type="text" id="key-uid" required placeholder="C9099C29"></div>
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" class="btn-icon" style="padding: 12px 24px;" onclick="window.app.closeModal('modal-key')">Batal</button>
-                    <button type="submit" class="btn-primary" id="btn-save-key">Simpan Kunci</button>
+                    <button type="button" class="btn-icon" onclick="window.app.closeModal('modal-key')">Batal</button>
+                    <button type="submit" class="btn-primary" id="btn-save-key">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Add/Edit User Modal -->
     <div id="modal-user" class="modal-overlay hidden">
         <div class="glass-panel modal-content">
-            <h3 style="font-size: 18px; margin-bottom: 20px;" id="modal-user-title">Daftar Pelawat Baru</h3>
+            <h3 style="font-size: 18px; margin-bottom: 20px;">Daftar Pelawat Baru</h3>
             <form id="form-user" onsubmit="window.app.saveUser(event)">
-                <input type="hidden" id="user-id">
-                <div style="margin-bottom: 16px;">
-                    <label>Nama Penuh</label>
-                    <input type="text" id="user-fullname" required>
-                </div>
+                <div style="margin-bottom: 16px;"><label>Nama Penuh</label><input type="text" id="user-fullname" required></div>
                 <div class="form-grid" style="margin-bottom: 16px;">
                     <div><label>Username</label><input type="text" id="user-username" required></div>
-                    <div><label>Kata Laluan</label><input type="password" id="user-password" placeholder="Isi jika mahu tukar"></div>
+                    <div><label>Password</label><input type="password" id="user-password" required></div>
                 </div>
-                <div style="margin-bottom: 24px;">
-                    <label>UID NFC Kad (Hex 8-digit)</label>
-                    <input type="text" id="user-uid" required placeholder="Contoh: 04A0B0V1" style="font-family: monospace;">
-                </div>
+                <div style="margin-bottom: 24px;"><label>UID NFC Kad</label><input type="text" id="user-uid" required placeholder="C9099C29"></div>
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" class="btn-icon" style="padding: 12px 24px;" onclick="window.app.closeModal('modal-user')">Batal</button>
-                    <button type="submit" class="btn-primary" id="btn-save-user">Simpan Pelawat</button>
+                    <button type="button" class="btn-icon" onclick="window.app.closeModal('modal-user')">Batal</button>
+                    <button type="submit" class="btn-primary" id="btn-save-user">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Notifications Container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- SUPABASE & APP LOGIC -->
     <script>
-        // ==========================================
-        // 1. SUPABASE CONFIGURATION (Kunci Anda)
-        // ==========================================
         const SUPABASE_URL = 'https://acbuklkczqynzleetdck.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYnVrbGtjenF5bnpsZWV0ZGNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODU5MzgsImV4cCI6MjEwMDQ2MTkzOH0.wiByswtk4qG0pO-QjACGQqFwnwPZakaLqbxmNVKMrGU';
         
-        let supabase = null;
-        try {
-            if (window.supabase && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch (e) {
-            console.warn("Supabase Client init error:", e);
-        }
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const state = { currentUser: null, keys: [], users: [], history: [] };
 
-        // ==========================================
-        // 2. STATE MANAGEMENT
-        // ==========================================
-        const state = {
-            currentUser: null,
-            keys: [],
-            users: [],
-            history: [],
-            historyPage: 1,
-            historyLimit: 10,
-            realtimeSubscription: null
-        };
-
-        // ==========================================
-        // 3. UI UTILITIES
-        // ==========================================
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            toast.innerHTML = type === 'success' ? `✓ ${message}` : `⚠ ${message}`;
+            toast.innerText = message;
             container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        function formatDate(isoString) {
-            if (!isoString) return '-';
-            const d = new Date(isoString);
-            return d.toLocaleString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }
-
-        function toggleLoading(btnId, isLoading) {
-            const btn = document.getElementById(btnId);
-            if (!btn) return;
-            if (isLoading) {
-                btn.dataset.original = btn.innerHTML;
-                btn.innerHTML = '<div class="spinner"></div>';
-                btn.disabled = true;
-            } else {
-                btn.innerHTML = btn.dataset.original || 'Log Masuk';
-                btn.disabled = false;
-            }
-        }
-
-        // ==========================================
-        // 4. AUTHENTICATION (Login / Logout)
-        // ==========================================
         async function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('login-username').value.trim();
             const p = document.getElementById('login-password').value.trim();
-            toggleLoading('login-btn', true);
 
-            try {
-                let loggedInUser = null;
-
-                // Built-in Admin verification check
-                if (u.toLowerCase() === 'admin' && p === 'admin') {
-                    loggedInUser = { id: 'admin-root', fullname: 'Super Admin', username: 'admin', role: 'admin' };
-                }
-
-                // If not Admin, check the database for visitors
-                if (!loggedInUser && supabase) {
-                    try {
-                        const { data: userData } = await supabase.from('users').select('*').ilike('username', u).maybeSingle();
-                        if (userData) {
-                            loggedInUser = { ...userData, role: 'visitor' };
-                        }
-                    } catch (err) {
-                        console.log("User table lookup error:", err);
-                    }
-                }
-
-                if (!loggedInUser) {
-                    throw new Error("Username atau password tidak sah.");
-                }
-
-                // Setup App Interface
-                state.currentUser = loggedInUser;
+            if (u.toLowerCase() === 'admin' && p === 'admin') {
+                state.currentUser = { fullname: 'Super Admin', role: 'admin' };
                 document.getElementById('login-view').classList.add('hidden');
                 document.getElementById('app-view').classList.remove('hidden');
-                document.getElementById('user-display-name').innerText = state.currentUser.fullname;
-                document.getElementById('user-display-role').innerText = state.currentUser.role === 'admin' ? 'Pentadbir Sistem' : 'Pelawat Rak';
-                
-                if (state.currentUser.role === 'admin') {
-                    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                document.getElementById('user-display-name').innerText = 'Super Admin';
+                document.getElementById('user-display-role').innerText = 'Pentadbir';
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                showToast('Selamat datang, Admin');
+                fetchAllData();
+                return;
+            }
+
+            try {
+                const { data } = await supabase.from('users').select('*').ilike('username', u).maybeSingle();
+                if (data) {
+                    state.currentUser = { ...data, role: 'visitor' };
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('app-view').classList.remove('hidden');
+                    document.getElementById('user-display-name').innerText = data.fullname;
+                    document.getElementById('user-display-role').innerText = 'Pelawat';
+                    showToast(`Selamat datang, ${data.fullname}`);
+                    fetchAllData();
                 } else {
-                    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                    showToast('Username atau password salah', 'error');
                 }
-
-                showToast(`Selamat datang, ${state.currentUser.fullname}`);
-                initializeApp();
-
-            } catch (error) {
-                showToast(error.message || "Ralat log masuk", 'error');
-            } finally {
-                toggleLoading('login-btn', false);
+            } catch (err) {
+                showToast('Ralat pelayan', 'error');
             }
         }
 
         function logout() {
-            if (state.realtimeSubscription && supabase) {
-                supabase.removeChannel(state.realtimeSubscription);
-            }
             state.currentUser = null;
             document.getElementById('app-view').classList.add('hidden');
             document.getElementById('login-view').classList.remove('hidden');
             document.getElementById('login-form').reset();
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-            showToast('Anda telah log keluar');
+            showToast('Log keluar berjaya');
         }
 
-        // ==========================================
-        // 5. DATA FETCHING & REAL-TIME
-        // ==========================================
-        async function initializeApp() {
-            navigate('dashboard');
-            await fetchAllData();
-            setupRealtime();
-        }
-
-        async function fetchAllData() {
-            if (!supabase) {
-                showToast('API Keys Supabase belum disambungkan', 'error');
-                return;
-            }
-
-            try {
-                // Fetch Keys
-                const { data: keys } = await supabase
-                    .from('keys')
-                    .select(`*, users(fullname)`)
-                    .order('key_name');
-                state.keys = keys || [];
-
-                // Fetch Users (If Admin)
-                if (state.currentUser.role === 'admin') {
-                    const { data: users } = await supabase.from('users').select('*').order('created_at', { ascending: false });
-                    state.users = users || [];
-                    fetchHistory();
-                }
-                
-                renderDashboardKeys();
-                if (state.currentUser.role === 'admin') {
-                    renderAdminKeys();
-                    renderAdminUsers();
-                }
-            } catch (err) {
-                console.error("Data fetching error:", err);
-            }
-        }
-
-        async function fetchHistory() {
-            if (!supabase) return;
-            try {
-                let query = supabase.from('history').select(`*, users(fullname), keys(key_name, location)`).order('datetime', { ascending: false });
-                
-                const monthFilter = document.getElementById('filter-month').value;
-                if (monthFilter !== 'all') {
-                    const d = new Date();
-                    d.setMonth(d.getMonth() - parseInt(monthFilter));
-                    d.setDate(1); d.setHours(0,0,0,0);
-                    query = query.gte('datetime', d.toISOString());
-                }
-
-                // Pagination
-                const start = (state.historyPage - 1) * state.historyLimit;
-                const end = start + state.historyLimit - 1;
-                query = query.range(start, end);
-
-                const { data } = await query;
-                state.history = data || [];
-                renderHistory();
-            } catch (err) {
-                console.error("History fetch error:", err);
-            }
-        }
-
-        function setupRealtime() {
-            if (!supabase) return;
-            try {
-                state.realtimeSubscription = supabase.channel('schema-db-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'keys' }, () => { fetchAllData(); showToast("Status Kunci Dikemaskini secara automatik"); })
-                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, () => { if(state.currentUser.role === 'admin') fetchHistory(); })
-                    .subscribe();
-            } catch (err) {
-                console.warn("Realtime setup notice:", err);
-            }
-        }
-
-        // ==========================================
-        // 6. RENDER LOGIC
-        // ==========================================
         function navigate(pageId) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
             document.getElementById(`page-${pageId}`).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const targetBtn = Array.from(document.querySelectorAll('.nav-item')).find(btn => btn.getAttribute('onclick')?.includes(pageId));
-            if(targetBtn) targetBtn.classList.add('active');
-            
             if (window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('open');
         }
 
-        function renderDashboardKeys() {
-            const searchInput = document.getElementById('search-keys-dashboard');
-            const search = searchInput ? searchInput.value.toLowerCase() : '';
-            const filtered = state.keys.filter(k => k.key_name.toLowerCase().includes(search) || (k.location && k.location.toLowerCase().includes(search)));
-            
-            const tbody = document.getElementById('tbody-dashboard-keys');
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada kunci dijumpai</td></tr>`;
-            } else {
-                tbody.innerHTML = filtered.map(k => {
-                    const isAda = k.status === 'ADA';
-                    const borrower = k.users ? k.users.fullname : (k.borrowed_by || '-');
-                    return `
-                    <tr>
-                        <td style="font-weight:600;">${k.key_name}</td>
-                        <td style="color:var(--text-muted);">${k.location || '-'}</td>
-                        <td>
-                            <span class="status-badge ${isAda ? 'status-ada' : 'status-diambil'}">
-                                <span style="width:8px;height:8px;border-radius:50%;background:currentColor;"></span>
-                                ${k.status}
-                            </span>
-                        </td>
-                        <td>${!isAda ? borrower : '-'}</td>
-                        <td>${!isAda ? formatDate(k.borrow_time) : '-'}</td>
-                    </tr>`;
-                }).join('');
-            }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-            // Update Stats
-            document.getElementById('stat-total-keys').innerText = state.keys.length;
-            document.getElementById('stat-avail-keys').innerText = state.keys.filter(k => k.status === 'ADA').length;
-            document.getElementById('stat-borrow-keys').innerText = state.keys.filter(k => k.status === 'DIAMBIL').length;
+        async function fetchAllData() {
+            try {
+                const { data: keys } = await supabase.from('keys').select('*, users(fullname)').order('key_name');
+                state.keys = keys || [];
+                renderDashboardKeys();
+
+                if (state.currentUser && state.currentUser.role === 'admin') {
+                    const { data: users } = await supabase.from('users').select('*');
+                    state.users = users || [];
+                    renderAdminUsers();
+
+                    const { data: history } = await supabase.from('history').select('*, users(fullname), keys(key_name, location)').order('datetime', { ascending: false }).limit(20);
+                    state.history = history || [];
+                    renderHistory();
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
 
-        function renderAdminKeys() {
-            const tbody = document.getElementById('tbody-admin-keys');
-            if (state.keys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada rekod kunci</td></tr>`;
-                return;
-            }
+        function renderDashboardKeys() {
+            const tbody = document.getElementById('tbody-dashboard-keys');
+            if(!tbody) return;
             tbody.innerHTML = state.keys.map(k => `
                 <tr>
                     <td style="font-weight:600;">${k.key_name}</td>
                     <td>${k.location || '-'}</td>
-                    <td style="font-family:monospace;color:var(--accent-gold);">${k.key_uid}</td>
-                    <td>
-                        <span class="status-badge ${k.status === 'ADA' ? 'status-ada' : 'status-diambil'}">
-                            ${k.status}
-                        </span>
-                    </td>
-                    <td style="text-align: right; display:flex; gap:8px; justify-content:flex-end;">
-                        <button class="btn-icon" onclick='window.app.editKey(${JSON.stringify(k).replace(/'/g, "&#39;")})' style="color:var(--accent-gold);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4v16h16v-7m-2.5-9.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 8.5-8.5z"/></svg></button>
-                        <button class="btn-icon" onclick="window.app.deleteKey('${k.id}')" style="color:var(--status-red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></button>
-                    </td>
-                </tr>`).join('');
+                    <td><span class="status-badge ${k.status === 'ADA' ? 'status-ada' : 'status-diambil'}">${k.status}</span></td>
+                    <td>${k.users ? k.users.fullname : '-'}</td>
+                    <td>${k.borrow_time ? new Date(k.borrow_time).toLocaleString() : '-'}</td>
+                </tr>
+            `).join('') || `<tr><td colspan="5" style="text-align:center;">Tiada kunci</td></tr>`;
+
+            document.getElementById('stat-total-keys').innerText = state.keys.length;
+            document.getElementById('stat-avail-keys').innerText = state.keys.filter(k => k.status === 'ADA').length;
+            document.getElementById('stat-borrow-keys').innerText = state.keys.filter(k => k.status === 'DIAMBIL').length;
+
+            const adminKeys = document.getElementById('tbody-admin-keys');
+            if(adminKeys) {
+                adminKeys.innerHTML = state.keys.map(k => `
+                    <tr>
+                        <td style="font-weight:600;">${k.key_name}</td>
+                        <td>${k.location || '-'}</td>
+                        <td style="font-family:monospace; color:var(--accent-gold);">${k.key_uid}</td>
+                        <td><span class="status-badge ${k.status === 'ADA' ? 'status-ada' : 'status-diambil'}">${k.status}</span></td>
+                        <td style="text-align:right;"><button class="btn-icon" onclick="window.app.deleteKey('${k.id}')" style="color:var(--status-red);">Padam</button></td>
+                    </tr>
+                `).join('');
+            }
         }
 
         function renderAdminUsers() {
             const tbody = document.getElementById('tbody-admin-users');
-            if (state.users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada pelawat berdaftar</td></tr>`;
-                return;
-            }
+            if(!tbody) return;
             tbody.innerHTML = state.users.map(u => `
                 <tr>
                     <td style="font-weight:600;">${u.fullname}</td>
                     <td>${u.username}</td>
-                    <td style="font-family:monospace;color:var(--accent-gold);">${u.card_uid}</td>
-                    <td><span style="font-size:11px;padding:4px 8px;background:rgba(255,255,255,0.1);border-radius:4px;text-transform:uppercase;">${u.role}</span></td>
-                    <td style="text-align: right; display:flex; gap:8px; justify-content:flex-end;">
-                        <button class="btn-icon" onclick="window.app.deleteUser('${u.id}')" style="color:var(--status-red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></button>
-                    </td>
-                </tr>`).join('');
+                    <td style="font-family:monospace; color:var(--accent-gold);">${u.card_uid}</td>
+                    <td>${u.role}</td>
+                    <td style="text-align:right;"><button class="btn-icon" onclick="window.app.deleteUser('${u.id}')" style="color:var(--status-red);">Padam</button></td>
+                </tr>
+            `).join('');
         }
 
         function renderHistory() {
             const tbody = document.getElementById('tbody-admin-history');
             if(!tbody) return;
-            if(state.history.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Tiada rekod dijumpai</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = state.history.map(h => {
-                const isAmbil = h.action === 'DIAMBIL';
-                return `
+            tbody.innerHTML = state.history.map(h => `
                 <tr>
-                    <td>${formatDate(h.datetime || h.created_at)}</td>
-                    <td style="font-weight:600;">${h.users ? h.users.fullname : '-'}</td>
-                    <td>${h.keys ? `${h.keys.key_name} <br><span style="font-size:11px;color:var(--text-muted);">${h.keys.location || ''}</span>` : '-'}</td>
-                    <td>
-                        <span class="status-badge ${isAmbil ? 'status-diambil' : 'status-ada'}">
-                            ${isAmbil ? 'Diambil ↓' : 'Dipulangkan ↑'}
-                        </span>
-                    </td>
-                </tr>`;
-            }).join('');
-            
-            document.getElementById('pagination-info').innerText = `Menunjukkan muka surat ${state.historyPage}`;
-        }
-
-        // ==========================================
-        // 7. CRUD OPERATIONS (Admin)
-        // ==========================================
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { 
-            document.getElementById(id).classList.add('hidden'); 
-            const form = document.getElementById(id.replace('modal', 'form'));
-            if (form) form.reset();
-            const hiddenId = document.getElementById(id.replace('modal', 'form').replace('form', 'id'));
-            if (hiddenId) hiddenId.value = '';
-        }
-
-        function editKey(k) {
-            document.getElementById('modal-key-title').innerText = 'Kemaskini Kunci';
-            document.getElementById('key-id').value = k.id;
-            document.getElementById('key-name').value = k.key_name;
-            document.getElementById('key-location').value = k.location || '';
-            document.getElementById('key-uid').value = k.key_uid;
-            openModal('modal-key');
+                    <td>${new Date(h.datetime || h.created_at).toLocaleString()}</td>
+                    <td>${h.users ? h.users.fullname : '-'}</td>
+                    <td>${h.keys ? h.keys.key_name : '-'}</td>
+                    <td><span class="status-badge ${h.action === 'DIAMBIL' ? 'status-diambil' : 'status-ada'}">${h.action}</span></td>
+                </tr>
+            `).join('');
         }
 
         async function saveKey(e) {
             e.preventDefault();
-            toggleLoading('btn-save-key', true);
-            const id = document.getElementById('key-id').value;
             const payload = {
                 key_name: document.getElementById('key-name').value.trim(),
                 location: document.getElementById('key-location').value.trim(),
-                key_uid: document.getElementById('key-uid').value.trim().toUpperCase()
+                key_uid: document.getElementById('key-uid').value.trim().toUpperCase(),
+                status: 'ADA'
             };
-
-            try {
-                if (supabase) {
-                    if (id) {
-                        await supabase.from('keys').update(payload).eq('id', id);
-                    } else {
-                        payload.status = 'ADA';
-                        await supabase.from('keys').insert([payload]);
-                    }
-                }
-                showToast(id ? 'Kunci berjaya dikemaskini' : 'Kunci berjaya didaftar');
-                closeModal('modal-key');
-                fetchAllData();
-            } catch (error) {
-                showToast('Ralat menyimpan kunci.', 'error');
-            } finally {
-                toggleLoading('btn-save-key', false);
-            }
+            await supabase.from('keys').insert([payload]);
+            showToast('Kunci berjaya didaftar');
+            closeModal('modal-key');
+            document.getElementById('form-key').reset();
+            fetchAllData();
         }
 
         async function deleteKey(id) {
-            if(confirm("Adakah anda pasti untuk memadam kunci ini?")) {
-                if (supabase) {
-                    await supabase.from('keys').delete().eq('id', id);
-                }
+            if(confirm('Adakah anda pasti untuk memadam kunci ini?')) {
+                await supabase.from('keys').delete().eq('id', id);
                 showToast('Kunci berjaya dipadam');
                 fetchAllData();
             }
@@ -810,88 +500,43 @@
 
         async function saveUser(e) {
             e.preventDefault();
-            toggleLoading('btn-save-user', true);
             const payload = {
                 fullname: document.getElementById('user-fullname').value.trim(),
                 username: document.getElementById('user-username').value.trim(),
+                password: document.getElementById('user-password').value.trim(),
                 card_uid: document.getElementById('user-uid').value.trim().toUpperCase(),
                 role: 'visitor'
             };
-            
-            const pwd = document.getElementById('user-password').value;
-            if (pwd) payload.password = pwd;
-
-            try {
-                if (supabase) {
-                    await supabase.from('users').insert([payload]);
-                }
-                showToast('Pelawat berjaya didaftar');
-                closeModal('modal-user');
-                fetchAllData();
-            } catch (error) {
-                showToast('Ralat mendaftar pelawat.', 'error');
-            } finally {
-                toggleLoading('btn-save-user', false);
-            }
+            await supabase.from('users').insert([payload]);
+            showToast('Pelawat berjaya didaftar');
+            closeModal('modal-user');
+            document.getElementById('form-user').reset();
+            fetchAllData();
         }
 
         async function deleteUser(id) {
-            if(confirm("Adakah anda pasti untuk memadam pelawat ini?")) {
-                if (supabase) {
-                    await supabase.from('users').delete().eq('id', id);
-                }
+            if(confirm('Adakah anda pasti untuk memadam pelawat ini?')) {
+                await supabase.from('users').delete().eq('id', id);
                 showToast('Pelawat berjaya dipadam');
                 fetchAllData();
             }
         }
 
-        // ==========================================
-        // 8. EXPORT EXCEL & PAGINATION
-        // ==========================================
-        function changePage(delta) {
-            if (state.historyPage + delta > 0) {
-                state.historyPage += delta;
-                fetchHistory();
-            }
-        }
-
         function exportExcel() {
-            if(state.history.length === 0) {
-                showToast('Tiada data untuk dieksport', 'error'); return;
-            }
-            
-            let csv = 'Tarikh Masa,Pelawat,Kunci,Rak,Tindakan\n';
+            if(state.history.length === 0) { showToast('Tiada data untuk dieksport', 'error'); return; }
+            let csv = 'Tarikh Masa,Pelawat,Kunci,Tindakan\n';
             state.history.forEach(h => {
-                const date = new Date(h.datetime || h.created_at).toLocaleString('ms-MY');
-                const user = h.users ? h.users.fullname : '-';
-                const key = h.keys ? h.keys.key_name : '-';
-                const rak = h.keys ? h.keys.location : '-';
-                const action = h.action;
-                csv += `"${date}","${user}","${key}","${rak}","${action}"\n`;
+                csv += `"${new Date(h.datetime || h.created_at).toLocaleString()}","${h.users ? h.users.fullname : '-'}","${h.keys ? h.keys.key_name : '-'}","${h.action}"\n`;
             });
-
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `ARKIBSYS_Laporan_${new Date().toISOString().slice(0,10)}.csv`;
+            a.href = URL.createObjectURL(blob);
+            a.download = `ARKIBSYS_Laporan.csv`;
             a.click();
-            URL.revokeObjectURL(url);
             showToast('Laporan berjaya dimuat turun');
         }
 
-        // ==========================================
-        // 9. ATTACH TO WINDOW FOR HTML INLINE EVENTS
-        // ==========================================
-        window.app = {
-            navigate, logout, renderDashboardKeys,
-            openModal, closeModal, 
-            saveKey, editKey, deleteKey, 
-            saveUser, deleteUser,
-            renderHistory, changePage, exportExcel
-        };
-
-        // Attach Login listener
+        window.app = { navigate, logout, openModal, closeModal, saveKey, deleteKey, saveUser, deleteUser, renderDashboardKeys, exportExcel };
         document.getElementById('login-form').addEventListener('submit', handleLogin);
     </script>
 </body>
