@@ -1,898 +1,399 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARKIBSYS - Smart Key Management</title>
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        /* CSS Variables - Dark Blue Glassmorphism Theme */
-        :root {
-            --bg-page: #070d1a;
-            --bg-header: rgba(10, 16, 32, 0.8);
-            --bg-sidebar: rgba(10, 16, 32, 0.95);
-            --bg-card: rgba(14, 22, 40, 0.6);
-            --bg-input: rgba(20, 31, 53, 0.8);
-            --text-main: #e4ecf7;
-            --text-muted: #6b82a8;
-            --border-glass: rgba(255, 255, 255, 0.07);
-            --accent-gold: #c9a84c;
-            --accent-gold-hover: #a88a3a;
-            --status-green: #22c55e;
-            --status-red: #e05252;
-            --font-main: 'Poppins', sans-serif;
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: var(--font-main);
-        }
-
-        body {
-            background-color: var(--bg-page);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(201, 168, 76, 0.05), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(34, 197, 94, 0.03), transparent 25%);
-        }
-
-        /* Utility Classes */
-        .hidden { display: none !important; }
-        .glass-panel {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass);
-            border-radius: 16px;
-        }
-        
-        /* Buttons & Inputs */
-        button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; transition: var(--transition); }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-hover));
-            color: #070d1a; font-weight: 600; padding: 12px 24px; border-radius: 8px;
-            display: inline-flex; align-items: center; gap: 8px;
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3); }
-        .btn-icon { padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); }
-        .btn-icon:hover { background: rgba(255,255,255,0.1); }
-        
-        input, select {
-            width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border-glass);
-            border-radius: 8px; color: var(--text-main); outline: none; transition: var(--transition);
-        }
-        input:focus, select:focus { border-color: var(--accent-gold); box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1); }
-        label { display: block; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-
-        /* Login Screen */
-        #login-view {
-            display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 24px;
-        }
-        .login-box { width: 100%; max-width: 420px; padding: 40px; }
-        .login-header { text-align: center; margin-bottom: 32px; }
-        .login-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-        .login-header span { color: var(--accent-gold); }
-
-        /* App Layout */
-        #app-view { display: flex; min-height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar {
-            width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border-glass);
-            display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50;
-            transition: var(--transition); backdrop-filter: blur(10px);
-        }
-        .sidebar-header { height: 70px; display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid var(--border-glass); font-size: 20px; font-weight: 800; }
-        .sidebar-header span { color: var(--accent-gold); }
-        .sidebar-nav { flex: 1; padding: 24px 16px; overflow-y: auto; }
-        .nav-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px; width: 100%;
-            border-radius: 10px; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;
-        }
-        .nav-item:hover, .nav-item.active { background: rgba(201, 168, 76, 0.1); color: var(--accent-gold); }
-        .sidebar-footer { padding: 24px 16px; border-top: 1px solid var(--border-glass); }
-        
-        /* Main Content */
-        .main-content { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh; transition: var(--transition); }
-        .topbar {
-            height: 70px; background: var(--bg-header); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-glass);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 40;
-        }
-        .content-area { padding: 32px; flex: 1; }
-
-        /* Dashboard Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
-        .stat-card { padding: 24px; }
-        .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .stat-card .value { font-size: 36px; font-weight: 800; }
-        .text-green { color: var(--status-green) !important; }
-        .text-red { color: var(--status-red) !important; }
-
-        /* Data Tables */
-        .table-container { overflow-x: auto; margin-top: 16px; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        th { padding: 16px; text-align: left; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-glass); }
-        td { padding: 16px; font-size: 14px; border-bottom: 1px solid var(--border-glass); }
-        tr:hover { background: rgba(255, 255, 255, 0.02); }
-        
-        .status-badge {
-            display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600;
-        }
-        .status-ada { background: rgba(34, 197, 94, 0.1); color: var(--status-green); border: 1px solid rgba(34, 197, 94, 0.2); }
-        .status-diambil { background: rgba(224, 82, 82, 0.1); color: var(--status-red); border: 1px solid rgba(224, 82, 82, 0.2); }
-
-        /* Modals & Toasts */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
-            display: flex; align-items: center; justify-content: center; z-index: 100; padding: 24px;
-        }
-        .modal-content { width: 100%; max-width: 500px; padding: 32px; animation: slideUp 0.3s ease; }
-        
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 12px; }
-        .toast { padding: 16px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; animation: slideInRight 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .toast.success { background: rgba(34, 197, 94, 0.9); color: #fff; }
-        .toast.error { background: rgba(224, 82, 82, 0.9); color: #fff; }
-
-        /* Loading Spinner */
-        .spinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent-gold); border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
-        
-        /* Animations */
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-        
-        /* Responsive */
-        .menu-toggle { display: none; }
-        @media (max-width: 1024px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-            .menu-toggle { display: block; }
-        }
-        
-        /* Grid Layouts for Forms */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
-    </style>
+    <title>ARKIBSYS - Smart Key Management System</title>
+    <!-- Tailwind CSS untuk UI yang kemas & moden -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pustaka Rasmi Supabase JS v2 (DIPERBAIKI) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
 
-    <!-- LOGIN VIEW -->
-    <div id="login-view">
-        <div class="glass-panel login-box">
-            <div class="login-header">
-                <h1>ARKIB<span>SYS</span></h1>
-                <p style="color: var(--text-muted); margin-top: 8px;">Sistem Pengurusan Kunci Pintar</p>
-            </div>
-            <form id="login-form">
-                <div style="margin-bottom: 16px;">
-                    <label>Username</label>
-                    <input type="text" id="login-username" required placeholder="admin atau ID visitor">
-                </div>
-                <div style="margin-bottom: 24px;">
-                    <label>Password</label>
-                    <input type="password" id="login-password" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;" id="login-btn">
-                    Log Masuk
-                </button>
-            </form>
-            <div style="margin-top: 20px; padding: 12px; background: rgba(201, 168, 76, 0.08); border: 1px solid rgba(201, 168, 76, 0.2); border-radius: 8px; font-size: 12px; color: var(--text-muted); text-align: center;">
-                <strong style="color: var(--accent-gold);">Demo Login Admin:</strong><br>
-                Username: <code>admin</code> | Password: <code>admin</code>
-            </div>
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <span class="text-2xl font-black text-indigo-400 tracking-wider">ARKIBSYS</span>
+            <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2.5 py-1 rounded-full border border-indigo-500/30">NFC IoT Cloud</span>
         </div>
-    </div>
+        <div id="user-info" class="hidden flex items-center space-x-4">
+            <span id="welcome-text" class="text-sm text-slate-300"></span>
+            <button onclick="logout()" class="bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white text-xs px-3 py-1.5 rounded-lg border border-rose-500/30 transition">Log Keluar</button>
+        </div>
+    </header>
 
-    <!-- APP VIEW -->
-    <div id="app-view" class="hidden">
-        
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                ARKIB<span>SYS</span>
+    <!-- CONTAINER UTAMA -->
+    <main class="max-w-6xl mx-auto p-4 md:p-6">
+
+        <!-- SECTION 1: LOGIN PANEL -->
+        <section id="login-section" class="max-w-md mx-auto mt-16 bg-slate-800/80 backdrop-blur border border-slate-700 p-8 rounded-2xl shadow-2xl">
+            <h2 class="text-xl font-bold mb-6 text-center text-indigo-300">Log Masuk Sistem</h2>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Username Admin</label>
+                    <input type="text" id="login-username" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                    <input type="password" id="login-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg transition shadow-lg shadow-indigo-600/30">Log Masuk</button>
+            </form>
+            <p class="text-xs text-center text-slate-500 mt-4">Default Admin: username: <code>admin</code> | password: <code>admin</code></p>
+        </section>
+
+        <!-- SECTION 2: DASHBOARD UTAMA (TERSEMBUNYI SEBELUM LOGIN) -->
+        <section id="dashboard-section" class="hidden space-y-6">
+            
+            <!-- Tab Navigation -->
+            <div class="flex space-x-2 border-b border-slate-700 pb-3">
+                <button onclick="switchTab('keys')" id="btn-tab-keys" class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white transition">Status Kunci</button>
+                <button onclick="switchTab('visitors')" id="btn-tab-visitors" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:text-slate-200 transition">Daftar Pelawat</button>
+                <button onclick="switchTab('managekeys')" id="btn-tab-managekeys" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:text-slate-200 transition">Daftar Kunci</button>
+                <button onclick="switchTab('history')" id="btn-tab-history" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:text-slate-200 transition">Sejarah Log</button>
             </div>
-            <nav class="sidebar-nav">
-                <button class="nav-item active" onclick="window.app.navigate('dashboard')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4V4zm9 0h7v4h-7V4zM4 13h7v7H4v-7zm9 3h7v4h-7v-4z"/></svg>
-                    Dashboard
-                </button>
-                <button class="nav-item admin-only hidden" onclick="window.app.navigate('admin-keys')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/></svg>
-                    Manage Keys
-                </button>
-                <button class="nav-item admin-only hidden" onclick="window.app.navigate('admin-users')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
-                    Manage Visitors
-                </button>
-                <button class="nav-item admin-only hidden" onclick="window.app.navigate('admin-history')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2"/></svg>
-                    History & Reports
-                </button>
-            </nav>
-            <div class="sidebar-footer">
-                <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;" id="user-display-name">User</div>
-                <div style="font-size: 11px; color: var(--accent-gold); text-transform: uppercase; margin-bottom: 16px;" id="user-display-role">Role</div>
-                <button class="btn-icon" style="width: 100%; color: var(--status-red); border-color: rgba(224, 82, 82, 0.3);" onclick="window.app.logout()">
-                    Log Keluar
-                </button>
+
+            <!-- TAB 1: STATUS KUNCI -->
+            <div id="tab-keys" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-slate-200">Status Kunci Semasa</h3>
+                    <button onclick="loadKeys()" class="text-xs bg-slate-800 border border-slate-700 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition">🔄 Refresh</button>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/60 border-b border-slate-700 text-xs uppercase text-slate-400 tracking-wider">
+                                <th class="p-4">Nama Kunci</th>
+                                <th class="p-4">UID Kunci</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Dipinjam Oleh</th>
+                                <th class="p-4">Masa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keys-table-body" class="divide-y divide-slate-700/50 text-sm">
+                            <!-- Data dimasukkan secara dinamik -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="topbar">
-                <button class="menu-toggle btn-icon" onclick="document.getElementById('sidebar').classList.toggle('open')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-                </button>
-                <div style="display: flex; gap: 16px; align-items: center; margin-left: auto;">
-                    <div id="esp-status" style="display: flex; align-items: center; gap: 8px; font-size: 12px; background: rgba(34,197,94,0.1); padding: 6px 12px; border-radius: 99px; border: 1px solid rgba(34,197,94,0.3); color: var(--status-green);">
-                        <span class="spinner" style="width:12px;height:12px;border-width:2px;border-top-color:var(--status-green);"></span> Real-time Sync
-                    </div>
-                </div>
-            </header>
-
-            <div class="content-area">
-                
-                <!-- PAGE: Dashboard (For All) -->
-                <div id="page-dashboard" class="page-view">
-                    <h2 style="font-size: 24px; margin-bottom: 24px;">Ringkasan Sistem</h2>
-                    
-                    <div class="stats-grid">
-                        <div class="glass-panel stat-card">
-                            <h3>Jumlah Kunci</h3>
-                            <div class="value" id="stat-total-keys">0</div>
-                        </div>
-                        <div class="glass-panel stat-card">
-                            <h3>Tersedia (ADA)</h3>
-                            <div class="value text-green" id="stat-avail-keys">0</div>
-                        </div>
-                        <div class="glass-panel stat-card">
-                            <h3>Sedang Dipinjam</h3>
-                            <div class="value text-red" id="stat-borrow-keys">0</div>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel" style="padding: 24px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">
-                            <h3 style="font-size: 16px; font-weight: 600;">Status Kunci Semasa</h3>
-                            <input type="text" id="search-keys-dashboard" placeholder="Cari nama kunci atau rak..." style="max-width: 300px;" onkeyup="window.app.renderDashboardKeys()">
-                        </div>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Nama Kunci</th>
-                                        <th>Lokasi Rak</th>
-                                        <th>Status</th>
-                                        <th>Peminjam Terakhir</th>
-                                        <th>Masa Pinjaman</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-dashboard-keys">
-                                    <!-- Populated by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PAGE: Admin - Manage Keys -->
-                <div id="page-admin-keys" class="page-view hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-                        <h2 style="font-size: 24px;">Pengurusan Kunci</h2>
-                        <button class="btn-primary" onclick="window.app.openModal('modal-key')">+ Daftar Kunci Baru</button>
-                    </div>
-                    <div class="glass-panel" style="padding: 24px;">
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Nama Kunci</th>
-                                        <th>Lokasi Rak</th>
-                                        <th>UID Kad (NFC)</th>
-                                        <th>Status</th>
-                                        <th style="text-align: right;">Tindakan</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-admin-keys"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PAGE: Admin - Manage Users -->
-                <div id="page-admin-users" class="page-view hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-                        <h2 style="font-size: 24px;">Pengurusan Pelawat</h2>
-                        <button class="btn-primary" onclick="window.app.openModal('modal-user')">+ Daftar Pelawat Baru</button>
-                    </div>
-                    <div class="glass-panel" style="padding: 24px;">
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Nama Penuh</th>
-                                        <th>Username</th>
-                                        <th>UID Kad (NFC)</th>
-                                        <th>Peranan</th>
-                                        <th style="text-align: right;">Tindakan</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-admin-users"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PAGE: Admin - History -->
-                <div id="page-admin-history" class="page-view hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-                        <h2 style="font-size: 24px;">Rekod Transaksi</h2>
-                        <div style="display: flex; gap: 12px;">
-                            <select id="filter-month" style="width: 150px;" onchange="window.app.renderHistory()">
-                                <option value="all">Semua Bulan</option>
-                                <option value="0">Bulan Ini</option>
-                                <option value="1">1 Bulan Lepas</option>
-                            </select>
-                            <button class="btn-primary" onclick="window.app.exportExcel()">Export Excel</button>
-                        </div>
-                    </div>
-                    <div class="glass-panel" style="padding: 24px;">
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Tarikh & Masa</th>
-                                        <th>Pelawat</th>
-                                        <th>Kunci (Rak)</th>
-                                        <th>Tindakan</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-admin-history"></tbody>
-                            </table>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
-                            <span style="font-size: 12px; color: var(--text-muted);" id="pagination-info">Menunjukkan muka surat 1</span>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn-icon" onclick="window.app.changePage(-1)">&#8592;</button>
-                                <button class="btn-icon" onclick="window.app.changePage(1)">&#8594;</button>
+            <!-- TAB 2: DAFTAR PELAWAT / USER -->
+            <div id="tab-visitors" class="hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl h-fit">
+                        <h3 class="text-lg font-semibold mb-4 text-indigo-300">Tambah Pelawat Baru</h3>
+                        <form onsubmit="addVisitor(event)" class="space-y-4">
+                            <div>
+                               <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Nama Penuh</label>
+                               <input type="text" id="visitor-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm focus:outline-none focus:border-indigo-500">
                             </div>
+                            <div>
+                               <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Username</label>
+                               <input type="text" id="visitor-user" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                               <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                               <input type="password" id="visitor-pass" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                               <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">NFC UID (Cth: C9099C29)</label>
+                               <input type="text" id="visitor-uid" required placeholder="C9099C29" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm uppercase focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-lg transition">Simpan Pelawat</button>
+                        </form>
+                    </div>
+                    <div class="md:col-span-2 bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+                            <h3 class="font-semibold">Senarai Pengguna & Pelawat Berdaftar</h3>
+                            <button onclick="loadVisitors()" class="text-xs bg-slate-700 px-3 py-1.5 rounded-lg">🔄 Refresh</button>
                         </div>
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/60 border-b border-slate-700 text-xs uppercase text-slate-400">
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Username</th>
+                                    <th class="p-3">UID Kad</th>
+                                    <th class="p-3">Peranan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="visitors-table-body" class="divide-y divide-slate-700/50 text-sm"></tbody>
+                        </table>
                     </div>
                 </div>
-
             </div>
-        </main>
-    </div>
 
-    <!-- MODALS -->
-    <!-- Add/Edit Key Modal -->
-    <div id="modal-key" class="modal-overlay hidden">
-        <div class="glass-panel modal-content">
-            <h3 style="font-size: 18px; margin-bottom: 20px;" id="modal-key-title">Daftar Kunci Baru</h3>
-            <form id="form-key" onsubmit="window.app.saveKey(event)">
-                <input type="hidden" id="key-id">
-                <div class="form-grid" style="margin-bottom: 16px;">
-                    <div><label>Nama Kunci</label><input type="text" id="key-name" required></div>
-                    <div><label>Lokasi Rak</label><input type="text" id="key-location" required></div>
+            <!-- TAB 3: DAFTAR KUNCI -->
+            <div id="tab-managekeys" class="hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl h-fit">
+                        <h3 class="text-lg font-semibold mb-4 text-indigo-300">Tambah Tag Kunci Baru</h3>
+                        <form onsubmit="addKeyTag(event)" class="space-y-4">
+                            <div>
+                               <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Nama Kunci / Bilik</label>
+                               <input type="text" id="key-name" required placeholder="Bilik Server 01" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                               <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">NFC UID Kunci (Cth: 1A2B3C4D)</label>
+                               <input type="text" id="key-uid" required placeholder="1A2B3C4D" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm uppercase focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-lg transition">Simpan Kunci</button>
+                        </form>
+                    </div>
+                    <div class="md:col-span-2 bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+                            <h3 class="font-semibold">Senarai Kunci Fizikal</h3>
+                            <button onclick="loadManageKeys()" class="text-xs bg-slate-700 px-3 py-1.5 rounded-lg">🔄 Refresh</button>
+                        </div>
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/60 border-b border-slate-700 text-xs uppercase text-slate-400">
+                                    <th class="p-3">Nama Kunci</th>
+                                    <th class="p-3">UID Tag</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="managekeys-table-body" class="divide-y divide-slate-700/50 text-sm"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div style="margin-bottom: 24px;">
-                    <label>UID NFC (Hex 8-digit)</label>
-                    <input type="text" id="key-uid" required placeholder="Contoh: 04A2B3C1" style="font-family: monospace;">
-                </div>
-                <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" class="btn-icon" style="padding: 12px 24px;" onclick="window.app.closeModal('modal-key')">Batal</button>
-                    <button type="submit" class="btn-primary" id="btn-save-key">Simpan Kunci</button>
-                </div>
-            </form>
-        </div>
-    </div>
+            </div>
 
-    <!-- Add/Edit User Modal -->
-    <div id="modal-user" class="modal-overlay hidden">
-        <div class="glass-panel modal-content">
-            <h3 style="font-size: 18px; margin-bottom: 20px;" id="modal-user-title">Daftar Pelawat Baru</h3>
-            <form id="form-user" onsubmit="window.app.saveUser(event)">
-                <input type="hidden" id="user-id">
-                <div style="margin-bottom: 16px;">
-                    <label>Nama Penuh</label>
-                    <input type="text" id="user-fullname" required>
+            <!-- TAB 4: SEJARAH LOG -->
+            <div id="tab-history" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-slate-200">Sejarah Aktiviti Pengambilan & Pemulangan Kunci</h3>
+                    <button onclick="loadHistory()" class="text-xs bg-slate-800 border border-slate-700 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition">🔄 Refresh</button>
                 </div>
-                <div class="form-grid" style="margin-bottom: 16px;">
-                    <div><label>Username</label><input type="text" id="user-username" required></div>
-                    <div><label>Kata Laluan</label><input type="password" id="user-password" placeholder="Isi jika mahu tukar"></div>
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/60 border-b border-slate-700 text-xs uppercase text-slate-400 tracking-wider">
+                                <th class="p-4">Masa</th>
+                                <th class="p-4">Pengguna / Pelawat</th>
+                                <th class="p-4">Kunci</th>
+                                <th class="p-4">Aktiviti</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-slate-700/50 text-sm">
+                            <!-- Data dimasukkan secara dinamik -->
+                        </tbody>
+                    </table>
                 </div>
-                <div style="margin-bottom: 24px;">
-                    <label>UID NFC Kad (Hex 8-digit)</label>
-                    <input type="text" id="user-uid" required placeholder="Contoh: 04A0B0V1" style="font-family: monospace;">
-                </div>
-                <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" class="btn-icon" style="padding: 12px 24px;" onclick="window.app.closeModal('modal-user')">Batal</button>
-                    <button type="submit" class="btn-primary" id="btn-save-user">Simpan Pelawat</button>
-                </div>
-            </form>
-        </div>
-    </div>
+            </div>
 
-    <!-- Toast Notifications Container -->
-    <div id="toast-container" class="toast-container"></div>
+        </section>
+    </main>
 
-    <!-- SUPABASE & APP LOGIC -->
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
+    <!-- SYSTEM JAVASCRIPT LOGIC -->
+    <script>
         // ==========================================
-        // 1. SUPABASE CONFIGURATION
+        // KONFIGURASI SUPABASE (MASUKKAN KUNCI ANDA DI SINI)
         // ==========================================
-        const SUPABASE_URL = 'https://acbuklkczqynzleetdck.supabase.co'; 
+        const SUPABASE_URL = 'https://acbuklkczqynzleetdck.supabase.co';
         const SUPABASE_ANON_KEY = 'sbp_6a20b6fcef4b04fbfb1fa59f103c6a68f70baaf3';
-        
-        let supabase = null;
-        try {
-            if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch (e) {
-            console.warn("Supabase Client init error:", e);
-        }
 
-        // ==========================================
-        // 2. STATE MANAGEMENT
-        // ==========================================
-        const state = {
-            currentUser: null,
-            keys: [],
-            users: [],
-            history: [],
-            historyPage: 1,
-            historyLimit: 10,
-            realtimeSubscription: null
-        };
+        // Inisialisasi Klien Supabase (DIPERBAIKI dengan betul)
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ==========================================
-        // 3. UI UTILITIES
-        // ==========================================
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = type === 'success' ? `✓ ${message}` : `⚠ ${message}`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
-        }
-
-        function formatDate(isoString) {
-            if (!isoString) return '-';
-            const d = new Date(isoString);
-            return d.toLocaleString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }
-
-        function toggleLoading(btnId, isLoading) {
-            const btn = document.getElementById(btnId);
-            if (isLoading) {
-                btn.dataset.original = btn.innerHTML;
-                btn.innerHTML = '<div class="spinner"></div>';
-                btn.disabled = true;
-            } else {
-                btn.innerHTML = btn.dataset.original || 'Log Masuk';
-                btn.disabled = false;
-            }
-        }
-
-        // ==========================================
-        // 4. AUTHENTICATION (Login / Logout)
-        // ==========================================
-        async function handleLogin(e) {
+        // Fungsi Login Sesi Tempatan
+        function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('login-username').value.trim();
-            const p = document.getElementById('login-password').value.trim();
-            toggleLoading('login-btn', true);
+            const u = document.getElementById('login-username').value;
+            const p = document.getElementById('login-password').value;
 
-            try {
-                let loggedInUser = null;
+            if (u === 'admin' && p === 'admin') {
+                localStorage.setItem('arkibsys_logged', 'true');
+                checkAuth();
+            } else {
+                alert('Username atau Password salah! Sila guna admin / admin');
+            }
+        }
 
-                // Built-in Admin verification check
-                if (u.toLowerCase() === 'admin' && p === 'admin') {
-                    loggedInUser = { id: 'admin-root', fullname: 'Super Admin', username: 'admin', role: 'admin' };
-                }
-
-                // If not Admin, check the database for visitors
-                if (!loggedInUser && supabase) {
-                    try {
-                        // In a pure Vanilla JS frontend without an RPC function to compare the hashed password, 
-                        // we authenticate visitors by checking if the username exists (Demo purposes). 
-                        // In production, use Supabase Auth or Edge Functions.
-                        const { data: userData } = await supabase.from('users').select('*').ilike('username', u).maybeSingle();
-                        if (userData) {
-                            loggedInUser = { ...userData, role: 'visitor' };
-                        }
-                    } catch (err) {
-                        console.log("User table lookup error:", err);
-                    }
-                }
-
-                if (!loggedInUser) {
-                    throw new Error("Username atau password tidak sah.");
-                }
-
-                // Setup App Interface
-                state.currentUser = loggedInUser;
-                document.getElementById('login-view').classList.add('hidden');
-                document.getElementById('app-view').classList.remove('hidden');
-                document.getElementById('user-display-name').innerText = state.currentUser.fullname;
-                document.getElementById('user-display-role').innerText = state.currentUser.role === 'admin' ? 'Pentadbir Sistem' : 'Pelawat Rak';
-                
-                if (state.currentUser.role === 'admin') {
-                    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-                } else {
-                    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-                }
-
-                showToast(`Selamat datang, ${state.currentUser.fullname}`);
-                initializeApp();
-
-            } catch (error) {
-                showToast(error.message || "Ralat log masuk", 'error');
-            } finally {
-                toggleLoading('login-btn', false);
+        function checkAuth() {
+            const isLogged = localStorage.getItem('arkibsys_logged');
+            if (isLogged === 'true') {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('welcome-text').innerText = 'Administrator';
+                loadKeys();
+            } else {
+                document.getElementById('login-section').classList.remove('hidden');
+                document.getElementById('dashboard-section').classList.add('hidden');
+                document.getElementById('user-info').classList.add('hidden');
             }
         }
 
         function logout() {
-            if (state.realtimeSubscription && supabase) {
-                supabase.removeChannel(state.realtimeSubscription);
-            }
-            state.currentUser = null;
-            document.getElementById('app-view').classList.add('hidden');
-            document.getElementById('login-view').classList.remove('hidden');
-            document.getElementById('login-form').reset();
-            document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-            showToast('Anda telah log keluar');
+            localStorage.removeItem('arkibsys_logged');
+            checkAuth();
         }
 
-        // ==========================================
-        // 5. DATA FETCHING & REAL-TIME
-        // ==========================================
-        async function initializeApp() {
-            navigate('dashboard');
-            await fetchAllData();
-            setupRealtime();
-        }
-
-        async function fetchAllData() {
-            if (!supabase) {
-                showToast('API Keys Supabase belum dimasukkan', 'error');
-                return;
-            }
-
-            try {
-                // Fetch Keys
-                const { data: keys } = await supabase
-                    .from('keys')
-                    .select(`*, users(fullname)`)
-                    .order('key_name');
-                state.keys = keys || [];
-
-                // Fetch Users (If Admin)
-                if (state.currentUser.role === 'admin') {
-                    const { data: users } = await supabase.from('users').select('*').order('created_at', { ascending: false });
-                    state.users = users || [];
-                    fetchHistory();
-                }
-                
-                renderDashboardKeys();
-                if (state.currentUser.role === 'admin') {
-                    renderAdminKeys();
-                    renderAdminUsers();
-                }
-            } catch (err) {
-                console.error("Data fetching error:", err);
-            }
-        }
-
-        async function fetchHistory() {
-            if (!supabase) return;
-            try {
-                let query = supabase.from('history').select(`*, users(fullname), keys(key_name, location)`).order('datetime', { ascending: false });
-                
-                const monthFilter = document.getElementById('filter-month').value;
-                if (monthFilter !== 'all') {
-                    const d = new Date();
-                    d.setMonth(d.getMonth() - parseInt(monthFilter));
-                    d.setDate(1); d.setHours(0,0,0,0);
-                    query = query.gte('datetime', d.toISOString());
-                }
-
-                // Pagination
-                const start = (state.historyPage - 1) * state.historyLimit;
-                const end = start + state.historyLimit - 1;
-                query = query.range(start, end);
-
-                const { data } = await query;
-                state.history = data || [];
-                renderHistory();
-            } catch (err) {
-                console.error("History fetch error:", err);
-            }
-        }
-
-        function setupRealtime() {
-            if (!supabase) return;
-            try {
-                state.realtimeSubscription = supabase.channel('schema-db-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'keys' }, () => { fetchAllData(); showToast("Status Kunci Dikemaskini secara automatik"); })
-                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, () => { if(state.currentUser.role === 'admin') fetchHistory(); })
-                    .subscribe();
-            } catch (err) {
-                console.warn("Realtime setup notice:", err);
-            }
-        }
-
-        // ==========================================
-        // 6. RENDER LOGIC
-        // ==========================================
-        function navigate(pageId) {
-            document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
-            document.getElementById(`page-${pageId}`).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const targetBtn = Array.from(document.querySelectorAll('.nav-item')).find(btn => btn.getAttribute('onclick')?.includes(pageId));
-            if(targetBtn) targetBtn.classList.add('active');
-            
-            if (window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('open');
-        }
-
-        function renderDashboardKeys() {
-            const searchInput = document.getElementById('search-keys-dashboard');
-            const search = searchInput ? searchInput.value.toLowerCase() : '';
-            const filtered = state.keys.filter(k => k.key_name.toLowerCase().includes(search) || k.location.toLowerCase().includes(search));
-            
-            const tbody = document.getElementById('tbody-dashboard-keys');
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada kunci dijumpai</td></tr>`;
-            } else {
-                tbody.innerHTML = filtered.map(k => {
-                    const isAda = k.status === 'ADA';
-                    const borrower = k.users ? k.users.fullname : (k.borrowed_by || '-');
-                    return `
-                    <tr>
-                        <td style="font-weight:600;">${k.key_name}</td>
-                        <td style="color:var(--text-muted);">${k.location}</td>
-                        <td>
-                            <span class="status-badge ${isAda ? 'status-ada' : 'status-diambil'}">
-                                <span style="width:8px;height:8px;border-radius:50%;background:currentColor;"></span>
-                                ${k.status}
-                            </span>
-                        </td>
-                        <td>${!isAda ? borrower : '-'}</td>
-                        <td>${!isAda ? formatDate(k.borrow_time) : '-'}</td>
-                    </tr>`;
-                }).join('');
-            }
-
-            // Update Stats
-            document.getElementById('stat-total-keys').innerText = state.keys.length;
-            document.getElementById('stat-avail-keys').innerText = state.keys.filter(k => k.status === 'ADA').length;
-            document.getElementById('stat-borrow-keys').innerText = state.keys.filter(k => k.status === 'DIAMBIL').length;
-        }
-
-        function renderAdminKeys() {
-            const tbody = document.getElementById('tbody-admin-keys');
-            if (state.keys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada rekod kunci</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = state.keys.map(k => `
-                <tr>
-                    <td style="font-weight:600;">${k.key_name}</td>
-                    <td>${k.location}</td>
-                    <td style="font-family:monospace;color:var(--accent-gold);">${k.key_uid}</td>
-                    <td>
-                        <span class="status-badge ${k.status === 'ADA' ? 'status-ada' : 'status-diambil'}">
-                            ${k.status}
-                        </span>
-                    </td>
-                    <td style="text-align: right; display:flex; gap:8px; justify-content:flex-end;">
-                        <button class="btn-icon" onclick='window.app.editKey(${JSON.stringify(k)})' style="color:var(--accent-gold);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4v16h16v-7m-2.5-9.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 8.5-8.5z"/></svg></button>
-                        <button class="btn-icon" onclick="window.app.deleteKey('${k.id}')" style="color:var(--status-red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></button>
-                    </td>
-                </tr>`).join('');
-        }
-
-        function renderAdminUsers() {
-            const tbody = document.getElementById('tbody-admin-users');
-            if (state.users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada pelawat berdaftar</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = state.users.map(u => `
-                <tr>
-                    <td style="font-weight:600;">${u.fullname}</td>
-                    <td>${u.username}</td>
-                    <td style="font-family:monospace;color:var(--accent-gold);">${u.card_uid}</td>
-                    <td><span style="font-size:11px;padding:4px 8px;background:rgba(255,255,255,0.1);border-radius:4px;text-transform:uppercase;">${u.role}</span></td>
-                    <td style="text-align: right; display:flex; gap:8px; justify-content:flex-end;">
-                        <button class="btn-icon" onclick="window.app.deleteUser('${u.id}')" style="color:var(--status-red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></button>
-                    </td>
-                </tr>`).join('');
-        }
-
-        function renderHistory() {
-            const tbody = document.getElementById('tbody-admin-history');
-            if(state.history.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Tiada rekod dijumpai</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = state.history.map(h => {
-                const isAmbil = h.action === 'DIAMBIL';
-                return `
-                <tr>
-                    <td>${formatDate(h.datetime)}</td>
-                    <td style="font-weight:600;">${h.users ? h.users.fullname : '-'}</td>
-                    <td>${h.keys ? `${h.keys.key_name} <br><span style="font-size:11px;color:var(--text-muted);">${h.keys.location}</span>` : '-'}</td>
-                    <td>
-                        <span class="status-badge ${isAmbil ? 'status-diambil' : 'status-ada'}">
-                            ${isAmbil ? 'Diambil ↓' : 'Dipulangkan ↑'}
-                        </span>
-                    </td>
-                </tr>`;
-            }).join('');
-            
-            document.getElementById('pagination-info').innerText = `Menunjukkan muka surat ${state.historyPage}`;
-        }
-
-        // ==========================================
-        // 7. CRUD OPERATIONS (Admin)
-        // ==========================================
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { 
-            document.getElementById(id).classList.add('hidden'); 
-            const form = document.getElementById(id.replace('modal', 'form'));
-            if (form) form.reset();
-            const hiddenId = document.getElementById(id.replace('modal', 'form').replace('form', 'id'));
-            if (hiddenId) hiddenId.value = '';
-        }
-
-        function editKey(k) {
-            document.getElementById('modal-key-title').innerText = 'Kemaskini Kunci';
-            document.getElementById('key-id').value = k.id;
-            document.getElementById('key-name').value = k.key_name;
-            document.getElementById('key-location').value = k.location;
-            document.getElementById('key-uid').value = k.key_uid;
-            openModal('modal-key');
-        }
-
-        async function saveKey(e) {
-            e.preventDefault();
-            toggleLoading('btn-save-key', true);
-            const id = document.getElementById('key-id').value;
-            const payload = {
-                key_name: document.getElementById('key-name').value.trim(),
-                location: document.getElementById('key-location').value.trim(),
-                key_uid: document.getElementById('key-uid').value.trim().toUpperCase()
-            };
-
-            try {
-                if (supabase) {
-                    if (id) {
-                        await supabase.from('keys').update(payload).eq('id', id);
-                    } else {
-                        await supabase.from('keys').insert([payload]);
-                    }
-                }
-                showToast(id ? 'Kunci berjaya dikemaskini' : 'Kunci berjaya didaftar');
-                closeModal('modal-key');
-                fetchAllData();
-            } catch (error) {
-                showToast('Ralat menyimpan kunci.', 'error');
-            } finally {
-                toggleLoading('btn-save-key', false);
-            }
-        }
-
-        async function deleteKey(id) {
-            if(confirm("Adakah anda pasti untuk memadam kunci ini?")) {
-                if (supabase) {
-                    await supabase.from('keys').delete().eq('id', id);
-                }
-                showToast('Kunci berjaya dipadam');
-                fetchAllData();
-            }
-        }
-
-        async function saveUser(e) {
-            e.preventDefault();
-            toggleLoading('btn-save-user', true);
-            const payload = {
-                fullname: document.getElementById('user-fullname').value.trim(),
-                username: document.getElementById('user-username').value.trim(),
-                card_uid: document.getElementById('user-uid').value.trim().toUpperCase(),
-                role: 'visitor'
-            };
-            
-            const pwd = document.getElementById('user-password').value;
-            if (pwd) payload.password = pwd;
-
-            try {
-                if (supabase) {
-                    await supabase.from('users').insert([payload]);
-                }
-                showToast('Pelawat berjaya didaftar');
-                closeModal('modal-user');
-                fetchAllData();
-            } catch (error) {
-                showToast('Ralat mendaftar pelawat.', 'error');
-            } finally {
-                toggleLoading('btn-save-user', false);
-            }
-        }
-
-        async function deleteUser(id) {
-            if(confirm("Adakah anda pasti untuk memadam pelawat ini?")) {
-                if (supabase) {
-                    await supabase.from('users').delete().eq('id', id);
-                }
-                showToast('Pelawat berjaya dipadam');
-                fetchAllData();
-            }
-        }
-
-        // ==========================================
-        // 8. EXPORT EXCEL & PAGINATION
-        // ==========================================
-        function changePage(delta) {
-            if (state.historyPage + delta > 0) {
-                state.historyPage += delta;
-                fetchHistory();
-            }
-        }
-
-        function exportExcel() {
-            if(state.history.length === 0) {
-                showToast('Tiada data untuk dieksport', 'error'); return;
-            }
-            
-            let csv = 'Tarikh Masa,Pelawat,Kunci,Rak,Tindakan\n';
-            state.history.forEach(h => {
-                const date = new Date(h.datetime).toLocaleString('ms-MY');
-                const user = h.users ? h.users.fullname : '-';
-                const key = h.keys ? h.keys.key_name : '-';
-                const rak = h.keys ? h.keys.location : '-';
-                const action = h.action;
-                csv += `"${date}","${user}","${key}","${rak}","${action}"\n`;
+        // Pertukaran Tab Menu
+        function switchTab(tabName) {
+            ['keys', 'visitors', 'managekeys', 'history'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`btn-tab-${t}`).className = "px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:text-slate-200 transition";
             });
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`btn-tab-${tabName}`).className = "px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white transition";
 
-            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `ARKIBSYS_Laporan_${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Laporan berjaya dimuat turun');
+            if (tabName === 'keys') loadKeys();
+            if (tabName === 'visitors') loadVisitors();
+            if (tabName === 'managekeys') loadManageKeys();
+            if (tabName === 'history') loadHistory();
         }
 
-        // ==========================================
-        // 9. ATTACH TO WINDOW FOR HTML INLINE EVENTS
-        // ==========================================
-        window.app = {
-            navigate, logout, renderDashboardKeys,
-            openModal, closeModal, 
-            saveKey, editKey, deleteKey, 
-            saveUser, deleteUser,
-            renderHistory, changePage, exportExcel
-        };
+        // Muat Data Status Kunci
+        async function loadKeys() {
+            const { data, error } = await supabase
+                .from('keys')
+                .select('*, users(fullname)');
+            
+            const tbody = document.getElementById('keys-table-body');
+            tbody.innerHTML = '';
 
-        // Attach Login listener
-        document.getElementById('login-form').addEventListener('submit', handleLogin);
+            if (error) {
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rose-400">Ralat memuat data: ${error.message}</td></tr>`;
+                return;
+            }
 
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tiada rekod kunci dijumpai.</td></tr>`;
+                return;
+            }
+
+            data.forEach(k => {
+                const statusBadge = k.status === 'ADA' 
+                    ? '<span class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full text-xs border border-emerald-500/30">ADA DI RAK</span>'
+                    : '<span class="bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full text-xs border border-amber-500/30">DIPINJAM</span>';
+                
+                const borrower = k.users ? k.users.fullname : '-';
+                const timeStr = k.borrow_time ? new Date(k.borrow_time).toLocaleString() : '-';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-700/30 transition">
+                        <td class="p-4 font-medium text-white">${k.key_name}</td>
+                        <td class="p-4 font-mono text-xs text-indigo-300">${k.key_uid}</td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 text-slate-300">${borrower}</td>
+                        <td class="p-4 text-xs text-slate-400">${timeStr}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Tambah Pelawat
+        async function addVisitor(e) {
+            e.preventDefault();
+            const fullname = document.getElementById('visitor-name').value;
+            const username = document.getElementById('visitor-user').value;
+            const password = document.getElementById('visitor-pass').value;
+            const card_uid = document.getElementById('visitor-uid').value.toUpperCase();
+
+            const { error } = await supabase.from('users').insert([
+                { fullname, username, password, card_uid, role: 'visitor' }
+            ]);
+
+            if (error) {
+                alert('Gagal mendaftar: ' + error.message);
+            } else {
+                alert('Pelawat berjaya didaftarkan!');
+                e.target.reset();
+                loadVisitors();
+            }
+        }
+
+        async function loadVisitors() {
+            const { data } = await supabase.from('users').select('*');
+            const tbody = document.getElementById('visitors-table-body');
+            tbody.innerHTML = '';
+            if (data) {
+                data.forEach(u => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-700/30">
+                            <td class="p-3 text-white font-medium">${u.fullname}</td>
+                            <td class="p-3 text-slate-300">${u.username}</td>
+                            <td class="p-3 font-mono text-xs text-indigo-300">${u.card_uid}</td>
+                            <td class="p-3 text-slate-400">${u.role}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Tambah Kunci
+        async function addKeyTag(e) {
+            e.preventDefault();
+            const key_name = document.getElementById('key-name').value;
+            const key_uid = document.getElementById('key-uid').value.toUpperCase();
+
+            const { error } = await supabase.from('keys').insert([
+                { key_name, key_uid, status: 'ADA' }
+            ]);
+
+            if (error) {
+                alert('Gagal menambah kunci: ' + error.message);
+            } else {
+                alert('Kunci fizikal berjaya didaftarkan!');
+                e.target.reset();
+                loadManageKeys();
+            }
+        }
+
+        async function loadManageKeys() {
+            const { data } = await supabase.from('keys').select('*');
+            const tbody = document.getElementById('managekeys-table-body');
+            tbody.innerHTML = '';
+            if (data) {
+                data.forEach(k => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-700/30">
+                            <td class="p-3 text-white font-medium">${k.key_name}</td>
+                            <td class="p-3 font-mono text-xs text-indigo-300">${k.key_uid}</td>
+                            <td class="p-3 text-slate-300">${k.status}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Muat Sejarah Log
+        async function loadHistory() {
+            const { data } = await supabase
+                .from('history')
+                .select('*, users(fullname), keys(key_name)')
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+
+            if (data) {
+                data.forEach(h => {
+                    const timeStr = new Date(h.created_at).toLocaleString();
+                    const userName = h.users ? h.users.fullname : 'Unknown User';
+                    const keyName = h.keys ? h.keys.key_name : 'Unknown Key';
+                    const actionBadge = h.action === 'DIAMBIL'
+                        ? '<span class="text-amber-400 font-semibold">DIAMBIL</span>'
+                        : '<span class="text-emerald-400 font-semibold">DIPULANGKAN</span>';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-700/30 transition">
+                            <td class="p-4 text-xs text-slate-400">${timeStr}</td>
+                            <td class="p-4 font-medium text-white">${userName}</td>
+                            <td class="p-4 text-indigo-300">${keyName}</td>
+                            <td class="p-4">${actionBadge}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Jalankan semakan sesi semasa muka surat dibuka
+        window.onload = checkAuth;
     </script>
 </body>
 </html>
