@@ -328,11 +328,15 @@
 
     <div id="toast-container" class="toast-container"></div>
 
-    <script>
-        const SUPABASE_URL = 'https://acbuklkczqynzleetdck.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYnVrbGtjenF5bnpsZWV0ZGNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODU5MzgsImV4cCI6MjEwMDQ2MTkzOH0.wiByswtk4qG0pO-QjACGQqFwnwPZakaLqbxmNVKMrGU';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+   <script>
+    const SUPABASE_URL = 'https://acbuklkczqynzleetdck.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Ganti dengan kunci anon anda
+    
+    // Pastikan baris ini HANYA ADA SEKALI SAHAJA di seluruh fail:
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Kod fungsi lain di bawah...
+</script>
         const state = { currentUser: null, keys: [], users: [], history: [] };
 
         function showToast(message, type = 'success') {
