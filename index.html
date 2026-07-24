@@ -7,9 +7,6 @@
     <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Supabase JS SDK (Global UMD - Supaya tiada ralat modul ESM) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
         /* CSS Variables - Dark Blue Glassmorphism Theme */
         :root {
@@ -95,7 +92,7 @@
         .sidebar-nav { flex: 1; padding: 24px 16px; overflow-y: auto; }
         .nav-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px; width: 100%;
-            border-radius: 10px; margin-bottom: 8px; color: var(--text-muted); font-weight: 500; text-align: left;
+            border-radius: 10px; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;
         }
         .nav-item:hover, .nav-item.active { background: rgba(201, 168, 76, 0.1); color: var(--accent-gold); }
         .sidebar-footer { padding: 24px 16px; border-top: 1px solid var(--border-glass); }
@@ -158,6 +155,7 @@
             .menu-toggle { display: block; }
         }
         
+        /* Grid Layouts for Forms */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
     </style>
@@ -276,7 +274,9 @@
                                         <th>Masa Pinjaman</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tbody-dashboard-keys"></tbody>
+                                <tbody id="tbody-dashboard-keys">
+                                    <!-- Populated by JS -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -372,6 +372,7 @@
     </div>
 
     <!-- MODALS -->
+    <!-- Add/Edit Key Modal -->
     <div id="modal-key" class="modal-overlay hidden">
         <div class="glass-panel modal-content">
             <h3 style="font-size: 18px; margin-bottom: 20px;" id="modal-key-title">Daftar Kunci Baru</h3>
@@ -393,6 +394,7 @@
         </div>
     </div>
 
+    <!-- Add/Edit User Modal -->
     <div id="modal-user" class="modal-overlay hidden">
         <div class="glass-panel modal-content">
             <h3 style="font-size: 18px; margin-bottom: 20px;" id="modal-user-title">Daftar Pelawat Baru</h3>
@@ -418,24 +420,31 @@
         </div>
     </div>
 
+    <!-- Toast Notifications Container -->
     <div id="toast-container" class="toast-container"></div>
 
     <!-- SUPABASE & APP LOGIC -->
-    <script>
-        // Konfigurasi Supabase Rasmi dengan Kunci Anon Sah
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        // ==========================================
+        // 1. SUPABASE CONFIGURATION
+        // ==========================================
         const SUPABASE_URL = 'https://acbuklkczqynzleetdck.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYnVrbGtjenF5bnpsZWV0ZGNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODU5MzgsImV4cCI6MjEwMDQ2MTkzOH0.wiByswtk4qG0pO-QjACGQqFwnwPZakaLqbxmNVKMrGU';
-    <script>
         
         let supabase = null;
         try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
         } catch (e) {
             console.warn("Supabase Client init error:", e);
         }
 
+        // ==========================================
+        // 2. STATE MANAGEMENT
+        // ==========================================
         const state = {
             currentUser: null,
             keys: [],
@@ -446,6 +455,9 @@
             realtimeSubscription: null
         };
 
+        // ==========================================
+        // 3. UI UTILITIES
+        // ==========================================
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -463,7 +475,6 @@
 
         function toggleLoading(btnId, isLoading) {
             const btn = document.getElementById(btnId);
-            if (!btn) return;
             if (isLoading) {
                 btn.dataset.original = btn.innerHTML;
                 btn.innerHTML = '<div class="spinner"></div>';
@@ -474,6 +485,9 @@
             }
         }
 
+        // ==========================================
+        // 4. AUTHENTICATION (Login / Logout)
+        // ==========================================
         async function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('login-username').value.trim();
@@ -483,12 +497,17 @@
             try {
                 let loggedInUser = null;
 
+                // Built-in Admin verification check
                 if (u.toLowerCase() === 'admin' && p === 'admin') {
                     loggedInUser = { id: 'admin-root', fullname: 'Super Admin', username: 'admin', role: 'admin' };
                 }
 
+                // If not Admin, check the database for visitors
                 if (!loggedInUser && supabase) {
                     try {
+                        // In a pure Vanilla JS frontend without an RPC function to compare the hashed password, 
+                        // we authenticate visitors by checking if the username exists (Demo purposes). 
+                        // In production, use Supabase Auth or Edge Functions.
                         const { data: userData } = await supabase.from('users').select('*').ilike('username', u).maybeSingle();
                         if (userData) {
                             loggedInUser = { ...userData, role: 'visitor' };
@@ -502,6 +521,7 @@
                     throw new Error("Username atau password tidak sah.");
                 }
 
+                // Setup App Interface
                 state.currentUser = loggedInUser;
                 document.getElementById('login-view').classList.add('hidden');
                 document.getElementById('app-view').classList.remove('hidden');
@@ -536,6 +556,9 @@
             showToast('Anda telah log keluar');
         }
 
+        // ==========================================
+        // 5. DATA FETCHING & REAL-TIME
+        // ==========================================
         async function initializeApp() {
             navigate('dashboard');
             await fetchAllData();
@@ -543,11 +566,20 @@
         }
 
         async function fetchAllData() {
-            if (!supabase) return;
+            if (!supabase) {
+                showToast('API Keys Supabase belum dimasukkan', 'error');
+                return;
+            }
+
             try {
-                const { data: keys } = await supabase.from('keys').select('*, users(fullname)').order('key_name');
+                // Fetch Keys
+                const { data: keys } = await supabase
+                    .from('keys')
+                    .select(`*, users(fullname)`)
+                    .order('key_name');
                 state.keys = keys || [];
 
+                // Fetch Users (If Admin)
                 if (state.currentUser.role === 'admin') {
                     const { data: users } = await supabase.from('users').select('*').order('created_at', { ascending: false });
                     state.users = users || [];
@@ -567,16 +599,17 @@
         async function fetchHistory() {
             if (!supabase) return;
             try {
-                let query = supabase.from('history').select('*, users(fullname), keys(key_name, location)').order('datetime', { ascending: false });
+                let query = supabase.from('history').select(`*, users(fullname), keys(key_name, location)`).order('datetime', { ascending: false });
                 
-                const monthFilter = document.getElementById('filter-month');
-                if (monthFilter && monthFilter.value !== 'all') {
+                const monthFilter = document.getElementById('filter-month').value;
+                if (monthFilter !== 'all') {
                     const d = new Date();
-                    d.setMonth(d.getMonth() - parseInt(monthFilter.value));
+                    d.setMonth(d.getMonth() - parseInt(monthFilter));
                     d.setDate(1); d.setHours(0,0,0,0);
                     query = query.gte('datetime', d.toISOString());
                 }
 
+                // Pagination
                 const start = (state.historyPage - 1) * state.historyLimit;
                 const end = start + state.historyLimit - 1;
                 query = query.range(start, end);
@@ -593,7 +626,7 @@
             if (!supabase) return;
             try {
                 state.realtimeSubscription = supabase.channel('schema-db-changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'keys' }, () => { fetchAllData(); showToast("Status Kunci Dikemaskini"); })
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'keys' }, () => { fetchAllData(); showToast("Status Kunci Dikemaskini secara automatik"); })
                     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'history' }, () => { if(state.currentUser.role === 'admin') fetchHistory(); })
                     .subscribe();
             } catch (err) {
@@ -601,6 +634,9 @@
             }
         }
 
+        // ==========================================
+        // 6. RENDER LOGIC
+        // ==========================================
         function navigate(pageId) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
             document.getElementById(`page-${pageId}`).classList.remove('hidden');
@@ -615,10 +651,9 @@
         function renderDashboardKeys() {
             const searchInput = document.getElementById('search-keys-dashboard');
             const search = searchInput ? searchInput.value.toLowerCase() : '';
-            const filtered = state.keys.filter(k => k.key_name.toLowerCase().includes(search) || (k.location && k.location.toLowerCase().includes(search)));
+            const filtered = state.keys.filter(k => k.key_name.toLowerCase().includes(search) || k.location.toLowerCase().includes(search));
             
             const tbody = document.getElementById('tbody-dashboard-keys');
-            if (!tbody) return;
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada kunci dijumpai</td></tr>`;
             } else {
@@ -628,7 +663,7 @@
                     return `
                     <tr>
                         <td style="font-weight:600;">${k.key_name}</td>
-                        <td style="color:var(--text-muted);">${k.location || '-'}</td>
+                        <td style="color:var(--text-muted);">${k.location}</td>
                         <td>
                             <span class="status-badge ${isAda ? 'status-ada' : 'status-diambil'}">
                                 <span style="width:8px;height:8px;border-radius:50%;background:currentColor;"></span>
@@ -641,6 +676,7 @@
                 }).join('');
             }
 
+            // Update Stats
             document.getElementById('stat-total-keys').innerText = state.keys.length;
             document.getElementById('stat-avail-keys').innerText = state.keys.filter(k => k.status === 'ADA').length;
             document.getElementById('stat-borrow-keys').innerText = state.keys.filter(k => k.status === 'DIAMBIL').length;
@@ -648,7 +684,6 @@
 
         function renderAdminKeys() {
             const tbody = document.getElementById('tbody-admin-keys');
-            if (!tbody) return;
             if (state.keys.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada rekod kunci</td></tr>`;
                 return;
@@ -656,19 +691,22 @@
             tbody.innerHTML = state.keys.map(k => `
                 <tr>
                     <td style="font-weight:600;">${k.key_name}</td>
-                    <td>${k.location || '-'}</td>
+                    <td>${k.location}</td>
                     <td style="font-family:monospace;color:var(--accent-gold);">${k.key_uid}</td>
-                    <td><span class="status-badge ${k.status === 'ADA' ? 'status-ada' : 'status-diambil'}">${k.status}</span></td>
+                    <td>
+                        <span class="status-badge ${k.status === 'ADA' ? 'status-ada' : 'status-diambil'}">
+                            ${k.status}
+                        </span>
+                    </td>
                     <td style="text-align: right; display:flex; gap:8px; justify-content:flex-end;">
-                        <button class="btn-icon" onclick='window.app.editKey(${JSON.stringify(k).replace(/'/g, "&#39;")})' style="color:var(--accent-gold);">Edit</button>
-                        <button class="btn-icon" onclick="window.app.deleteKey('${k.id}')" style="color:var(--status-red);">Padam</button>
+                        <button class="btn-icon" onclick='window.app.editKey(${JSON.stringify(k)})' style="color:var(--accent-gold);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4v16h16v-7m-2.5-9.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 8.5-8.5z"/></svg></button>
+                        <button class="btn-icon" onclick="window.app.deleteKey('${k.id}')" style="color:var(--status-red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></button>
                     </td>
                 </tr>`).join('');
         }
 
         function renderAdminUsers() {
             const tbody = document.getElementById('tbody-admin-users');
-            if (!tbody) return;
             if (state.users.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Tiada pelawat berdaftar</td></tr>`;
                 return;
@@ -679,13 +717,14 @@
                     <td>${u.username}</td>
                     <td style="font-family:monospace;color:var(--accent-gold);">${u.card_uid}</td>
                     <td><span style="font-size:11px;padding:4px 8px;background:rgba(255,255,255,0.1);border-radius:4px;text-transform:uppercase;">${u.role}</span></td>
-                    <td style="text-align: right;"><button class="btn-icon" onclick="window.app.deleteUser('${u.id}')" style="color:var(--status-red);">Padam</button></td>
+                    <td style="text-align: right; display:flex; gap:8px; justify-content:flex-end;">
+                        <button class="btn-icon" onclick="window.app.deleteUser('${u.id}')" style="color:var(--status-red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></button>
+                    </td>
                 </tr>`).join('');
         }
 
         function renderHistory() {
             const tbody = document.getElementById('tbody-admin-history');
-            if(!tbody) return;
             if(state.history.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Tiada rekod dijumpai</td></tr>`;
                 return;
@@ -695,29 +734,37 @@
                 const isAmbil = h.action === 'DIAMBIL';
                 return `
                 <tr>
-                    <td>${formatDate(h.datetime || h.created_at)}</td>
+                    <td>${formatDate(h.datetime)}</td>
                     <td style="font-weight:600;">${h.users ? h.users.fullname : '-'}</td>
-                    <td>${h.keys ? `${h.keys.key_name} <br><span style="font-size:11px;color:var(--text-muted);">${h.keys.location || ''}</span>` : '-'}</td>
-                    <td><span class="status-badge ${isAmbil ? 'status-diambil' : 'status-ada'}">${isAmbil ? 'Diambil ↓' : 'Dipulangkan ↑'}</span></td>
+                    <td>${h.keys ? `${h.keys.key_name} <br><span style="font-size:11px;color:var(--text-muted);">${h.keys.location}</span>` : '-'}</td>
+                    <td>
+                        <span class="status-badge ${isAmbil ? 'status-diambil' : 'status-ada'}">
+                            ${isAmbil ? 'Diambil ↓' : 'Dipulangkan ↑'}
+                        </span>
+                    </td>
                 </tr>`;
             }).join('');
             
-            const pageInfo = document.getElementById('pagination-info');
-            if (pageInfo) pageInfo.innerText = `Menunjukkan muka surat ${state.historyPage}`;
+            document.getElementById('pagination-info').innerText = `Menunjukkan muka surat ${state.historyPage}`;
         }
 
+        // ==========================================
+        // 7. CRUD OPERATIONS (Admin)
+        // ==========================================
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { 
             document.getElementById(id).classList.add('hidden'); 
             const form = document.getElementById(id.replace('modal', 'form'));
             if (form) form.reset();
+            const hiddenId = document.getElementById(id.replace('modal', 'form').replace('form', 'id'));
+            if (hiddenId) hiddenId.value = '';
         }
 
         function editKey(k) {
             document.getElementById('modal-key-title').innerText = 'Kemaskini Kunci';
             document.getElementById('key-id').value = k.id;
             document.getElementById('key-name').value = k.key_name;
-            document.getElementById('key-location').value = k.location || '';
+            document.getElementById('key-location').value = k.location;
             document.getElementById('key-uid').value = k.key_uid;
             openModal('modal-key');
         }
@@ -737,7 +784,6 @@
                     if (id) {
                         await supabase.from('keys').update(payload).eq('id', id);
                     } else {
-                        payload.status = 'ADA';
                         await supabase.from('keys').insert([payload]);
                     }
                 }
@@ -753,7 +799,9 @@
 
         async function deleteKey(id) {
             if(confirm("Adakah anda pasti untuk memadam kunci ini?")) {
-                if (supabase) await supabase.from('keys').delete().eq('id', id);
+                if (supabase) {
+                    await supabase.from('keys').delete().eq('id', id);
+                }
                 showToast('Kunci berjaya dipadam');
                 fetchAllData();
             }
@@ -773,7 +821,9 @@
             if (pwd) payload.password = pwd;
 
             try {
-                if (supabase) await supabase.from('users').insert([payload]);
+                if (supabase) {
+                    await supabase.from('users').insert([payload]);
+                }
                 showToast('Pelawat berjaya didaftar');
                 closeModal('modal-user');
                 fetchAllData();
@@ -786,12 +836,17 @@
 
         async function deleteUser(id) {
             if(confirm("Adakah anda pasti untuk memadam pelawat ini?")) {
-                if (supabase) await supabase.from('users').delete().eq('id', id);
+                if (supabase) {
+                    await supabase.from('users').delete().eq('id', id);
+                }
                 showToast('Pelawat berjaya dipadam');
                 fetchAllData();
             }
         }
 
+        // ==========================================
+        // 8. EXPORT EXCEL & PAGINATION
+        // ==========================================
         function changePage(delta) {
             if (state.historyPage + delta > 0) {
                 state.historyPage += delta;
@@ -800,10 +855,13 @@
         }
 
         function exportExcel() {
-            if(state.history.length === 0) { showToast('Tiada data untuk dieksport', 'error'); return; }
+            if(state.history.length === 0) {
+                showToast('Tiada data untuk dieksport', 'error'); return;
+            }
+            
             let csv = 'Tarikh Masa,Pelawat,Kunci,Rak,Tindakan\n';
             state.history.forEach(h => {
-                const date = new Date(h.datetime || h.created_at).toLocaleString('ms-MY');
+                const date = new Date(h.datetime).toLocaleString('ms-MY');
                 const user = h.users ? h.users.fullname : '-';
                 const key = h.keys ? h.keys.key_name : '-';
                 const rak = h.keys ? h.keys.location : '-';
@@ -821,6 +879,9 @@
             showToast('Laporan berjaya dimuat turun');
         }
 
+        // ==========================================
+        // 9. ATTACH TO WINDOW FOR HTML INLINE EVENTS
+        // ==========================================
         window.app = {
             navigate, logout, renderDashboardKeys,
             openModal, closeModal, 
@@ -829,7 +890,9 @@
             renderHistory, changePage, exportExcel
         };
 
+        // Attach Login listener
         document.getElementById('login-form').addEventListener('submit', handleLogin);
+
     </script>
 </body>
 </html>
